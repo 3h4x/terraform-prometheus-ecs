@@ -1,0 +1,67 @@
+global:
+  # Defaults for email_configs
+  smtp_from:          server@domain.com
+  smtp_smarthost:     smtp.domain.com:25
+  smtp_auth_username: user@domain.com
+  smtp_auth_password: test-test
+  # Defaults for slack_configs
+  slack_api_url:      'https://hooks.slack.com/services/test/test/test'
+
+# The directory from which notification templates are read.
+templates:
+- '/etc/alertmanager/templates/*.tmpl'
+
+# The root route on which each incoming alert enters.
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 0s
+  group_interval: 2m
+  repeat_interval: 24h
+
+  # Default receiver
+  receiver: page-ops-team-by-email
+
+  routes:
+    #
+    # Team specific alerts
+    #
+    # - match:
+    #     team: other-team
+    #   routes:
+    #     - match_re:
+    #         severity: critical|error
+    #       receiver: page-other-team-by-email
+    #       continue: true
+    #     - receiver: page-other-team-by-slack
+    #   continue: false
+
+    #
+    # Ops team
+    #
+    - match_re:
+        severity: error|critical
+      receiver: page-ops-team-by-email
+      continue: true
+    - receiver: page-ops-team-by-slack
+      continue: false
+
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning|error'
+  # Apply inhibition if the alertname is the same.
+  equal: ['alertname', 'cluster', 'service']
+
+receivers:
+- name: page-ops-team-by-slack
+  slack_configs:
+    - channel:       '#infrastructure-alerts'
+      username:      '{{ template "slack.username" . }}'
+      title_link:    ''
+      title:         '{{ template "slack.title" . }}'
+      pretext:       '{{ template "slack.pretext" . }}'
+      text:          '{{ template "slack.text" . }}'
+      color:         '{{ template "slack.color" . }}'
+      icon_emoji:    '{{ template "slack.icon_emoji" . }}'
+      send_resolved: true

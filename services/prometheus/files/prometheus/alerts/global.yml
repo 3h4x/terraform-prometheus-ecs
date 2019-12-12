@@ -1,0 +1,76 @@
+groups:
+- name: Instance metrics
+  rules:
+
+    - alert: NODE_CPU_USAGE_HIGH
+      expr:
+        round(
+          sum(rate(node_cpu_seconds_total{mode="user"}[5m])) by (instance) / count(count(node_cpu_seconds_total) by(cpu, instance)) by (instance) * 100,
+        0.1
+        ) > 85
+      for: 30m
+      labels:
+        severity: error
+      annotations:
+        firing:   The CPU usage on node {{ $labels.instance }} has increased to {{ $value | printf "%.2f" }}%.
+        resolved: The CPU usage on node {{ $labels.instance }} is back to normal - {{ $value | printf "%.2f" }}%.
+
+    - alert: NODE_CPU_STEAL_HIGH
+      expr:
+        round(
+        sum(rate(node_cpu_seconds_total{mode="steal"}[5m])) by (instance) / count(count(node_cpu_seconds_total) by(cpu, instance)) by (instance) * 100,
+        0.1
+        ) > 10
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        firing:   The steal CPU on node {{ $labels.instance }} has increased to {{ $value | printf "%.2f" }}%.
+        resolved: The steal CPU on node {{ $labels.instance }} is back to {{ $value | printf "%.2f" }}%.
+
+- name: EBS
+  rules:
+  - alert: NODE_EBS_DISK_INODES_UTILIZATION_ABOVE_75_PERC
+    expr: (
+      (node_filesystem_files{mountpoint=~"/rootfs/var/lib/grafana|/rootfs/var/lib/prometheus"} - node_filesystem_files_free)
+      / node_filesystem_files
+      ) * 100 > 75
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      firing:   Current disk inodes utilization on {{ $labels.instance }} (mountpoint {{ $labels.mountpoint }}) is {{ $value | printf "%.2f" }}%.
+      resolved: Current disk inodes utilization on {{ $labels.instance }} (mountpoint {{ $labels.mountpoint }}) is {{ $value | printf "%.2f" }}%.
+
+  - alert: NODE_DISK_SPACE_UTILIZATION_ABOVE_75_PERC
+    expr: (
+      (node_filesystem_size_bytes{mountpoint=~"/rootfs/var/lib/grafana|/rootfs/var/lib/prometheus"} - node_filesystem_avail_bytes)
+      / node_filesystem_size_bytes
+      ) * 100 > 75
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      firing:   Current disk space utilization on {{ $labels.instance }} (mountpoint {{ $labels.mountpoint }}) is {{ $value | printf "%.2f" }}%.
+      resolved: Current disk space utilization on {{ $labels.instance }} (mountpoint {{ $labels.mountpoint }}) is {{ $value | printf "%.2f" }}%.
+
+- name: Prometheus
+  rules:
+
+  - alert: PROMETHEUS_CONFIG_IS_BROKEN
+    expr: prometheus_config_last_reload_successful == 0
+    for: 5m
+    labels:
+      severity: error
+    annotations:
+      firing:   Prometheus config file can't be loaded because is broken.
+      resolved: Prometheus config file has been loaded successfully.
+
+  - alert: PROMETHEUS_TARGET_IS_DOWN
+    expr: up == 0
+    for: 10m
+    labels:
+      severity: error
+    annotations:
+      firing:   Prometheus scraping target {{ $labels.job }} for instance {{ $labels.instance }} is down.
+      resolved: Prometheus scraping target is up again.

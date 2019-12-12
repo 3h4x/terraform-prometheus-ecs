@@ -1,0 +1,95 @@
+[
+  {
+    "cmd": [
+      "--path.procfs", "/rootfs/proc",
+      "--path.sysfs", "/rootfs/sys",
+      "--collector.filesystem.ignored-fs-types", "^(sys|proc|auto|tmp|squash|shm|ns|fuse.lxc)fs$",
+      "--collector.filesystem.ignored-mount-points", "^/(rootfs/)?(sys|proc|dev|etc|run|var/run|var/lib/docker|snap)($|/)",
+      "--collector.ntp",
+      "--no-collector.arp",
+      "--no-collector.bcache",
+      "--no-collector.bonding",
+      "--no-collector.buddyinfo",
+      "--no-collector.conntrack",
+      "--no-collector.drbd",
+      "--no-collector.edac",
+      "--no-collector.entropy",
+      "--no-collector.filefd",
+      "--no-collector.gmond",
+      "--no-collector.hwmon",
+      "--no-collector.infiniband",
+      "--no-collector.interrupts",
+      "--no-collector.ipvs",
+      "--no-collector.ksmd",
+      "--no-collector.logind",
+      "--no-collector.megacli",
+      "--no-collector.meminfo_numa",
+      "--no-collector.mountstats",
+      "--no-collector.netstat",
+      "--no-collector.nfs",
+      "--no-collector.qdisc",
+      "--no-collector.runit",
+      "--no-collector.sockstat",
+      "--no-collector.supervisord",
+      "--no-collector.systemd",
+      "--no-collector.tcpstat",
+      "--no-collector.textfile",
+      "--no-collector.time",
+      "--no-collector.timex",
+      "--no-collector.uname",
+      "--no-collector.vmstat",
+      "--no-collector.wifi",
+      "--no-collector.xfs",
+      "--no-collector.zfs"
+    ],
+    "cpu": 128,
+    "environment": [
+      {
+        "name": "PROMETHEUS",
+        "value": "true"
+      },
+      {
+        "name": "PROMETHEUS_PORT",
+        "value": "${port}"
+      }
+    ],
+    "essential": true,
+    "image": "prom/node-exporter:v0.18.1",
+    "logConfiguration": {
+      "logDriver": "json-file",
+      "options": {
+        "max-file": "10",
+        "max-size": "10k"
+      }
+    },
+    "memory": 128,
+    "mountPoints": [
+      {
+        "containerPath": "/rootfs",
+        "readOnly": true,
+        "sourceVolume": "root"
+      },
+      {
+        "containerPath": "/var/run",
+        "readOnly": false,
+        "sourceVolume": "var_run"
+      },
+      {
+        "containerPath": "/sys",
+        "readOnly": true,
+        "sourceVolume": "sys"
+      }
+    ],
+    "name": "logstash_exporter",
+    "networkMode": "host",
+    "portMappings": [
+      {
+        "containerPort": ${port},
+        "hostPort": ${port},
+        "protocol": "tcp"
+      }
+    ],
+    "privileged": true,
+    "volumesFrom": []
+  }
+]

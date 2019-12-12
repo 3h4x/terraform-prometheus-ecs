@@ -1,0 +1,114 @@
+[
+  {
+    "command": [
+      "--config.file=/etc/prometheus/prometheus.yml"
+    ],
+    "cpu": 0,
+    "entryPoint": null,
+    "environment": [],
+    "essential": true,
+    "image": "prom/prometheus:v2.14.0",
+    "memory": 1024,
+    "memoryReservation": null,
+    "mountPoints": [
+      {
+        "containerPath": "/etc/prometheus",
+        "readOnly": null,
+        "sourceVolume": "config"
+      },
+      {
+        "containerPath": "/prometheus/data",
+        "readOnly": null,
+        "sourceVolume": "data"
+      }
+    ],
+    "name": "prometheus",
+    "portMappings": [
+      {
+        "containerPort": 9090,
+        "hostPort": 9090,
+        "protocol": "tcp"
+      }
+    ],
+    "volumesFrom": []
+  },
+  {
+    "command": [
+      "--directory",
+      "/etc/prometheus/"
+    ],
+    "cpu": 0,
+    "entryPoint": [],
+    "environment": [
+      {
+        "name": "AWS_DEFAULT_REGION",
+        "value": "${aws_region}"
+      }
+    ],
+    "essential": true,
+    "image": "3h4x/prometheus-ecs-sd:v0.0.1",
+    "memory": 256,
+    "memoryReservation": null,
+    "mountPoints": [
+      {
+        "containerPath": "/etc/prometheus",
+        "readOnly": null,
+        "sourceVolume": "config"
+      }
+    ],
+    "name": "prometheus-ecs-discovery",
+    "volumesFrom": []
+  },
+  {
+    "command": [],
+    "cpu": 0,
+    "entryPoint": [],
+    "environment": [],
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000,
+        "protocol": "tcp"
+      }
+    ],
+    "image": "grafana/grafana:6.4.4",
+    "memory": 1024,
+    "memoryReservation": null,
+    "mountPoints": [
+      {
+        "containerPath": "/var/lib/grafana",
+        "readOnly": null,
+        "sourceVolume": "grafana"
+      }
+    ],
+    "name": "grafana",
+    "volumesFrom": []
+  },
+  {
+    "command": [],
+    "cpu": 100,
+    "entryPoint": [],
+    "environment": [],
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 9093,
+        "hostPort": 9093,
+        "protocol": "tcp"
+      }
+    ],
+    "image": "prom/alertmanager:v0.19.0",
+    "memory": 64,
+    "memoryReservation": null,
+    "mountPoints": [
+      {
+        "containerPath": "/etc/alertmanager",
+        "readOnly": null,
+        "sourceVolume": "alertmanager"
+      }
+    ],
+    "name": "alertmanager",
+    "volumesFrom": []
+  }
+]

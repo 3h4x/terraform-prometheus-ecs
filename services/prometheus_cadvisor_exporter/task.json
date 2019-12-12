@@ -1,0 +1,72 @@
+[
+  {
+    "command": null,
+    "cpu": 100,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "dnsServers": null,
+    "dockerLabels": null,
+    "dockerSecurityOptions": null,
+    "entryPoint": null,
+    "environment": [
+      {
+        "name": "PROMETHEUS",
+        "value": "true"
+      },
+      {
+        "name": "PROMETHEUS_PORT",
+        "value": "${port}"
+      }
+    ],
+    "essential": true,
+    "extraHosts": null,
+    "hostname": null,
+    "image": "google/cadvisor:v0.33.0",
+    "links": null,
+    "linuxParameters": null,
+    "logConfiguration": null,
+    "memory": 300,
+    "memoryReservation": null,
+    "mountPoints": [
+      {
+        "containerPath": "/rootfs",
+        "readOnly": true,
+        "sourceVolume": "root"
+      },
+      {
+        "containerPath": "/var/run",
+        "readOnly": false,
+        "sourceVolume": "var_run"
+      },
+      {
+        "containerPath": "/sys",
+        "readOnly": true,
+        "sourceVolume": "sys"
+      },
+      {
+        "containerPath": "/var/lib/docker",
+        "readOnly": true,
+        "sourceVolume": "var_lib_docker"
+      },
+      {
+        "containerPath": "/sys/fs/cgroup",
+        "readOnly": true,
+        "sourceVolume": "cgroup"
+      }
+    ],
+    "name": "cadvisor",
+    "portMappings": [
+      {
+        "containerPort": ${port},
+        "hostPort": ${port},
+        "protocol": "tcp"
+      }
+    ],
+    "privileged": false,
+    "readonlyRootFilesystem": null,
+    "ulimits": null,
+    "user": null,
+    "volumesFrom": [],
+    "workingDirectory": null
+  }
+]

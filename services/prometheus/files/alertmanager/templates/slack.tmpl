@@ -1,0 +1,17 @@
+{{ define "slack.username" }}Prometheus in {{ .CommonLabels.env }} {{ .CommonLabels.region }}{{ end }}
+{{ define "slack.icon_emoji" }}{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "warning" }}:warn:{{ else }}:alert:{{ end }}{{ else }}:heavy_check_mark:{{ end }}{{ end }}
+{{ define "slack.color" }}{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "warning" }}warning{{ else }}danger{{ end }}{{ else }}good{{ end }}{{ end }}
+{{ define "slack.pretext" }}{{ end }}
+
+{{ define "slack.title" }}
+{{ range .Alerts }}{{ if eq .Status "firing" }}{{ .Annotations.firing }}{{ else }}{{ .Annotations.resolved }}{{ end }}
+{{ end }}
+{{ end }}
+
+{{ define "slack.text" }}{{ range .Alerts }}
+```
+Name:     {{ .Labels.alertname }}
+Region:   {{ .Labels.region }}{{ if .Labels.instance }}
+Instance: {{ .Labels.instance }}{{ end }}
+```
+{{ end }}{{ end }}
